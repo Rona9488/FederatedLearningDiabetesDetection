@@ -1,0 +1,131 @@
+"""flower-nih: A Flower / PyTorch app."""
+
+from collections import OrderedDict
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+import os
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from torch.utils.data import TensorDataset, DataLoader
+
+class Net(nn.Module):
+    """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
+
+    def __init__(self, input_size=21, hidden_size=32, num_classes=3):
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+
+
+def load_data(partition_id: int, num_partitions: int, batch_size: int, df: pd.DataFrame = None, train_split: float = 0.8):
+    if df is None:
+        df = pd.read_csv("/app/data/diabetes2.csv")
+
+    X = df.drop(columns=["Diabetes_binary"]).values
+    y = df["Diabetes_binary"].values
+
+    X = StandardScaler().fit_transform(X)
+
+    # Partisi data
+    total_size = len(X)
+    part_size = total_size // num_partitions
+    start_idx = partition_id * part_size
+    end_idx = total_size if partition_id == num_partitions - 1 else start_idx + part_size
+
+    X_part = torch.tensor(X[start_idx:end_idx], dtype=torch.float32)
+    y_part = torch.tensor(y[start_idx:end_idx], dtype=torch.long)
+    dataset = TensorDataset(X_part, y_part)
+
+    # Split train/test
+    train_size = int(train_split * len(dataset))
+    test_size = len(dataset) - train_size
+    train_set, test_set = torch.utils.data.random_split(dataset, [train_size, test_size])
+
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_set, batch_size=batch_size)
+
+    return train_loader, test_loader
+
+
+def train(net, trainloader, valloader, epochs, learning_rate, device):
+    """Training untuk model MLP"""
+    net.to(device)
+    criterion = torch.nn.CrossEntropyLoss().to(device)
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+    net.train()
+
+    for epoch in range(epochs):
+        running_loss = 0.0
+        correct = 0
+        total = 0
+
+        for inputs, labels in trainloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+
+        train_loss = running_loss / len(trainloader)
+        train_acc = correct / total
+
+        print(f"Epoch {epoch+1}: Train Loss = {train_loss:.4f}, Accuracy = {train_acc:.4f}")
+
+        val_loss, val_acc = test(net, valloader, device)
+
+        print(f"Val Loss = {val_loss:.4f}, Val Acc = {val_acc:.4f}")
+
+        results = {
+            "val_loss": val_loss,
+            "val_accuracy": val_acc,
+        }
+
+    return results
+
+
+def test(net, testloader, device):
+    """Validasi model di test set"""
+    net.to(device)
+    criterion = torch.nn.CrossEntropyLoss()
+    correct, loss = 0, 0.0
+    net.eval()  # Mode evaluasi
+
+    with torch.no_grad():
+        for batch in testloader:
+            inputs, labels = batch
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = net(inputs)
+            loss += criterion(outputs, labels).item()
+            _, predicted = torch.max(outputs.data, 1)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = correct / len(testloader.dataset)
+    avg_loss = loss / len(testloader)
+    return avg_loss, accuracy
+
+
+def get_weights(net):
+    return [val.cpu().numpy() for _, val in net.state_dict().items()]
+
+
+def set_weights(net, parameters):
+    params_dict = zip(net.state_dict().keys(), parameters)
+    state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
+    net.load_state_dict(state_dict, strict=True)
