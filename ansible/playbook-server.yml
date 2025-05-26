@@ -1,0 +1,5 @@
+- name: Setup server for Federated Learning
+  hosts: server
+  roles:
+    - common
+    - server

@@ -1,0 +1,69 @@
+- name: Ensure fl_server base folders exist
+  file:
+    path: "{{ server_target_dir }}/{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - ""
+    - server
+    - superlink-certificates
+
+- name: Templating server compose.yml
+  template:
+    src: compose.yml.j2
+    dest: "{{ server_target_dir }}/server/compose.yml"
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Salin file gen-state.yml ke direktori server
+  copy:
+    src: "{{ project_root }}/distributed/server/gen-state.yml"
+    dest: "{{ server_target_dir }}/server/gen-state.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Jalankan container sementara untuk membuat direktori state dengan UID 4999
+  command: docker compose -f gen-state.yml run --rm makedire
+  args:
+    chdir: "{{ server_target_dir }}/server"
+
+- name: Copy ui_server.sh file
+  copy:
+    src: "{{ project_root }}/distributed/server/ui_server.py"
+    dest: "{{ server_target_dir }}/server/ui_server.py"
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+
+- name: Copy only necessary certificates to server
+  copy:
+    src: "{{ item }}"
+    dest: "{{ server_target_dir }}/superlink-certificates/{{ item | basename }}"
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  with_items:
+    - "{{ project_root }}/distributed/superlink-certificates/ca.crt"
+    - "{{ project_root }}/distributed/superlink-certificates/server.key"
+    - "{{ project_root }}/distributed/superlink-certificates/server.pem"
+
+- name: Salin pyproject.base.toml
+  template:
+    src: pyproject.base.toml.j2
+    dest: "{{ server_target_dir }}/pyproject.base.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Salin pyproject.flwr.toml
+  template:
+    src: pyproject.flwr.toml.j2
+    dest: "{{ server_target_dir }}/pyproject.flwr.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"

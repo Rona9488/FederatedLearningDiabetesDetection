@@ -1,0 +1,61 @@
+services:
+  superlink:
+    image: flwr/superlink:{{ flwr_version | default("1.18.0") }}
+    command:
+      - --isolation
+      - process
+      - --ssl-ca-certfile=certificates/ca.crt
+      - --ssl-certfile=certificates/server.pem
+      - --ssl-keyfile=certificates/server.key
+      - --database=state/state.db
+    volumes:
+      - ./state/:/app/state/:rw
+    secrets:
+      - source: superlink-ca-certfile
+        target: /app/certificates/ca.crt
+      - source: superlink-certfile
+        target: /app/certificates/server.pem
+      - source: superlink-keyfile
+        target: /app/certificates/server.key
+    ports:
+      - 9092:9092
+      - 9093:9093
+
+  serverapp:
+    build:
+      context: {{ project_dir | default("..") }}
+      dockerfile_inline: |
+        FROM flwr/serverapp:{{ flwr_version | default("1.18.0") }}
+
+        WORKDIR /app
+
+        # Step 1: install dependencies dulu (jarang berubah)
+        COPY --chown=app:app pyproject.base.toml pyproject.toml
+        RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
+          && python -m pip install -U --no-cache-dir .
+
+        # Step 2: overwrite pyproject.toml dengan konfigurasi Flower
+        COPY --chown=app:app pyproject.flwr.toml pyproject.toml
+
+        ENTRYPOINT ["flwr-serverapp"]
+    command:
+      - --insecure
+      - --serverappio-api-address
+      - superlink:9091
+    depends_on:
+      - superlink
+    ports:
+      - 9200:9200
+    environment:
+      - PROM_PORT=9200
+    volumes:
+      - ./global_models:/app/global_models
+
+secrets:
+  superlink-ca-certfile:
+    file: ../superlink-certificates/ca.crt
+  superlink-certfile:
+    file: ../superlink-certificates/server.pem
+  superlink-keyfile:
+    file: ../superlink-certificates/server.key
+

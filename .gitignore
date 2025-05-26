@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Certificates (JANGAN commit file privat!)
+distributed/superlink-certificates/*
+!distributed/superlink-certificates/ca.crt  # Jika hanya ini yang dibutuhkan untuk validasi
+
+# Ansible host_vars (karena di-*generate*)
+ansible/host_vars/
+
+# Inventory file (karena di-*generate* dari hosts.yml)
+ansible/inventory.ini
+
+# Docker-compose cert state files
+distributed/server/state/
+*.pem
+*.key
+*.csr
+*.srl
+
+# Local data files (opsional tergantung kebutuhan)
+distributed/client/data/*.csv
+!distributed/client/data/data-*.csv  # default dataset
+
+# Python environment (optional)
+.env
+.venv/
+venv/
+pip-wheel-metadata/
+*.egg-info/
+
+# Logs
+*.log
+
+# Editor / system files
+.DS_Store
+.idea/
+.vscode/
+*.swp

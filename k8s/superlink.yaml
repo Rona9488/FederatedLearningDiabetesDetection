@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flwr
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superlink
+  namespace: flwr
+  labels:
+    app: superlink
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: superlink
+  template:
+    metadata:
+      labels:
+        app: superlink
+    spec:
+      containers:
+        - name: superlink
+          image: registry.100.78.235.15:8888/ronaa9488/federatedlearningdiabetesdetection/superlink:latest
+          args:
+            - --isolation
+            - process
+            - --ssl-ca-certfile=/app/certificates/ca.crt
+            - --ssl-certfile=/app/certificates/server.pem
+            - --ssl-keyfile=/app/certificates/server.key
+            - --database=/app/state/state.db
+          ports:
+            - containerPort: 9092
+            - containerPort: 9093
+          volumeMounts:
+            - name: state-volume
+              mountPath: /app/state
+            - name: certs-volume
+              mountPath: /app/certificates
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: state-volume
+          persistentVolumeClaim:
+            claimName: superlink-pvc
+        - name: certs-volume
+          secret:
+            secretName: superlink-certificates
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: superlink
+  namespace: flwr
+spec:
+  type: ClusterIP
+  selector:
+    app: superlink
+  ports:
+    - name: port-9092
+      protocol: TCP
+      port: 9092
+      targetPort: 9092
+    - name: port-9093
+      protocol: TCP
+      port: 9093
+      targetPort: 9093
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: superlink-pvc
+  namespace: flwr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

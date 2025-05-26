@@ -1,0 +1,13 @@
+services:
+  makedire:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM alpine:3.18
+
+        WORKDIR /work
+
+        CMD ["sh", "-c", "mkdir -p /work/global_models && chown -R 49999:49999 /work/global_models"]
+    volumes:
+      - .:/work
+    user: "0:0"

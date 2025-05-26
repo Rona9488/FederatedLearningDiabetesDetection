@@ -1,0 +1,78 @@
+- name: Ensure fl_client base folders exist
+  file:
+    path: "{{ client_target_dir }}/{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - ""
+    - client
+    - flower_nih
+    - superlink-certificates
+
+- name: Templating client compose.yml
+  template:
+    src: compose.yml.j2
+    dest: /home/{{ ansible_user }}/fl_client/client/compose.yml
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Copy client files
+  copy:
+    src: "{{ project_root }}/distributed/client/{{ item.src }}"
+    dest: "{{ client_target_dir }}/client/{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  with_items:
+    - { src: "start_client.sh", dest: "start_client.sh", mode: "0755" }
+    - { src: "ui_client.py", dest: "ui_client.py" }
+    - { src: "mini_predict.py", dest: "mini_predict.py" }
+    - { src: "gen-dirs.yml", dest: "gen-dirs.yml" }
+
+- name: Copy client data folder
+  copy:
+    src: "{{ project_root }}/distributed/client/data"
+    dest: "{{ client_target_dir }}/client"
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Jalankan container sementara untuk membuat direktori dengan UID 4999
+  command: sudo docker compose -f gen-dirs.yml run --rm makedire
+  args:
+    chdir: "{{ client_target_dir }}/client"
+
+# - name: Copy flower_nih folder
+#   copy:
+#     src: "{{ project_root }}/flower_nih/"
+#     dest: "{{ client_target_dir }}/flower_nih/"
+#     mode: "0755"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+
+- name: Copy superlink certificate (CA only)
+  copy:
+    src: "{{ project_root }}/distributed/superlink-certificates/ca.crt"
+    dest: "{{ client_target_dir }}/superlink-certificates/ca.crt"
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Salin pyproject.base.toml
+  template:
+    src: pyproject.base.toml.j2
+    dest: "{{ client_target_dir }}/pyproject.base.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Salin pyproject.flwr.toml
+  template:
+    src: pyproject.flwr.toml.j2
+    dest: "{{ client_target_dir }}/pyproject.flwr.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"

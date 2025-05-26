@@ -1,0 +1,4 @@
+- name: Template pyproject.toml
+  template:
+    src: pyproject.toml.j2
+    dest: ../pyproject.toml

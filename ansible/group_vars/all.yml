@@ -1,0 +1,3 @@
+flwr_version: "1.18.0"
+project_dir: ".."
+project_root: "{{ playbook_dir }}/.."

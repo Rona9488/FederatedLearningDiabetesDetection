@@ -1,0 +1,11 @@
+- name: Check if Docker binary exists
+  stat:
+    path: /usr/bin/docker
+  register: docker_binary
+
+- name: Install Docker using official convenience script
+  shell: |
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+  when: not docker_binary.stat.exists
+  become: true

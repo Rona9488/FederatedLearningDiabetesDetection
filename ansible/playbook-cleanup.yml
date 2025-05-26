@@ -1,0 +1,20 @@
+- hosts: server, clients
+  gather_facts: false
+  tasks:
+    - name: Hapus semua container Docker
+      become: true
+      shell: |
+        docker compose -f ./client/compose.yml down --volumes --remove-orphans
+        docker image prune -f
+      args:
+        chdir: /home/{{ ansible_user }}/fl_client
+      when: "'clients' in group_names"
+
+    - name: Restart server container
+      # become: true
+      shell: |
+        docker compose -f ./server/compose.yml down --volumes --remove-orphans
+        docker image prune -f
+      args:
+        chdir: /home/{{ ansible_user }}/fl_server
+      when: "'server' in group_names"

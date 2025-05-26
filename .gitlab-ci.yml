@@ -1,0 +1,107 @@
+stages:
+  - validate
+  - generate
+  - deploy
+  - build
+  - train
+
+variables:
+  PYTHONPATH: "${CI_PROJECT_DIR}"
+
+before_script:
+  - export PATH=$HOME/.local/bin:$PATH
+  - |
+    if ! command -v python3 &> /dev/null; then
+      echo "Python3 not found, installing..."
+      sudo apt-get update && sudo apt-get install -y python3 python3-pip
+    else
+      echo "Python3 found: $(python3 --version)"
+    fi
+  - pip3 install --upgrade pip
+  - pip3 install ansible flwr || true
+
+# Validasi hosts.yml
+validate-hosts:
+  stage: validate
+  tags:
+    - vm
+  script:
+    - echo "✅ Validating hosts.yml format..."
+    - python3 -c "import yaml; yaml.safe_load(open('hosts.yml'))"
+  only:
+    - main
+
+# Generate inventory dan host_vars
+generate-inventory:
+  stage: generate
+  tags:
+    - vm
+  script:
+    - echo "⚙️  Generating inventory and host_vars..."
+    - python3 deploy.py --generate-inventory --generate-host-vars
+  artifacts:
+    paths:
+      - ansible/inventory.ini
+      - ansible/host_vars/
+    expire_in: 1 hour
+  only:
+    - main
+
+# Generate sertifikat TLS
+generate-certs:
+  stage: generate
+  tags:
+    - vm
+  script:
+    - echo "🔐 Generating certificates using Docker Compose..."
+    - python3 deploy.py --generate-certs
+  artifacts:
+    paths:
+      - distributed/superlink-certificates/
+    expire_in: 1 hour
+  only:
+    - main
+
+# Test koneksi SSH via Ansible
+test-connectivity:
+  stage: validate
+  tags:
+    - vm
+  script:
+    - echo "🔍 Testing SSH/Ansible connectivity..."
+    - python3 deploy.py --test
+  only:
+    - main
+
+# Deploy konfigurasi dan compose file ke tiap host
+deploy:
+  stage: deploy
+  tags:
+    - vm
+  script:
+    - echo "🚀 Deploying with Ansible..."
+    - python3 deploy.py --deploy
+  only:
+    - main
+
+# Restart container di semua host (server + client)
+build:
+  stage: build
+  tags:
+    - vm
+  script:
+    - echo "♻️ Build/Restarting containers on all hosts..."
+    - python3 deploy.py --build
+  only:
+    - main
+
+# Jalankan training federated learning
+train:
+  stage: train
+  tags:
+    - vm
+  script:
+    - echo "🚀 Menjalankan training federated learning..."
+    - flwr run . local-deployment --stream
+  only:
+    - main

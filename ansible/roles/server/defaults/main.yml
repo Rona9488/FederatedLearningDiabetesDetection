@@ -1,0 +1,1 @@
+server_target_dir: /home/{{ ansible_user }}/fl_server

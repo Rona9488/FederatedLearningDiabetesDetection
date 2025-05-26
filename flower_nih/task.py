@@ -12,10 +12,33 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import TensorDataset, DataLoader
 
+# === PROMETHEUS METRICS SETUP ===
+import threading
+from prometheus_client import start_http_server, Gauge, REGISTRY
+
+# Fungsi bantu untuk hindari duplikat metric
+def get_or_create_gauge(name, description):
+    try:
+        return REGISTRY._names_to_collectors[name]
+    except KeyError:
+        return Gauge(name, description)
+
+TRAIN_DURATION = get_or_create_gauge("train_duration_seconds", "Training duration in seconds")
+VAL_LOSS = get_or_create_gauge("val_loss", "Validation loss after training")
+VAL_ACCURACY = get_or_create_gauge("val_accuracy", "Validation accuracy after training")
+TEST_LOSS = get_or_create_gauge("test_loss", "Loss on test data")
+TEST_ACCURACY = get_or_create_gauge("test_accuracy", "Accuracy on test data")
+
+# Jalankan server Prometheus hanya sekali saat Streamlit reload
+prom_port = int(os.environ.get("PROM_PORT", "9100"))
+start_http_server(prom_port)
+# ================================
+
+
 class Net(nn.Module):
     """Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')"""
 
-    def __init__(self, input_size=21, hidden_size=32, num_classes=3):
+    def __init__(self, input_size=10, hidden_size=32, num_classes=3):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
@@ -27,30 +50,34 @@ class Net(nn.Module):
         return self.fc3(x)
 
 
-def load_data(partition_id: int, num_partitions: int, batch_size: int, df: pd.DataFrame = None, train_split: float = 0.8):
+
+def load_data(batch_size: int, df: pd.DataFrame = None, train_split: float = 0.8):
     if df is None:
-        df = pd.read_csv("/app/data/diabetes2.csv")
+        data_path = os.getenv("DATA_PATH", "/app/data/data-1.csv") 
+        df = pd.read_csv(data_path)
 
-    X = df.drop(columns=["Diabetes_binary"]).values
-    y = df["Diabetes_binary"].values
+    # # Pilih hanya kolom yang diperlukan
+    # selected_features = [
+    #     "HighBP", "HighChol", "BMI", "Smoker", "PhysActivity",
+    #     "Fruits", "Veggies", "DiffWalk", "Sex", "Age", "Diabetes_01"
+    # ]
+    # df = df[selected_features]
 
-    X = StandardScaler().fit_transform(X)
+    # Pisahkan fitur dan label
+    X = df.iloc[:, :-1].values  # Semua kolom kecuali yang terakhir
+    y = df.iloc[:, -1].values   # Hanya kolom terakhir
 
-    # Partisi data
-    total_size = len(X)
-    part_size = total_size // num_partitions
-    start_idx = partition_id * part_size
-    end_idx = total_size if partition_id == num_partitions - 1 else start_idx + part_size
-
-    X_part = torch.tensor(X[start_idx:end_idx], dtype=torch.float32)
-    y_part = torch.tensor(y[start_idx:end_idx], dtype=torch.long)
-    dataset = TensorDataset(X_part, y_part)
+    # Konversi ke tensor
+    X_tensor = torch.tensor(X, dtype=torch.float32)
+    y_tensor = torch.tensor(y, dtype=torch.long)
+    dataset = TensorDataset(X_tensor, y_tensor)
 
     # Split train/test
     train_size = int(train_split * len(dataset))
     test_size = len(dataset) - train_size
     train_set, test_set = torch.utils.data.random_split(dataset, [train_size, test_size])
 
+    # DataLoader
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_set, batch_size=batch_size)
 
@@ -59,6 +86,8 @@ def load_data(partition_id: int, num_partitions: int, batch_size: int, df: pd.Da
 
 def train(net, trainloader, valloader, epochs, learning_rate, device):
     """Training untuk model MLP"""
+
+
     net.to(device)
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
@@ -86,9 +115,13 @@ def train(net, trainloader, valloader, epochs, learning_rate, device):
         train_loss = running_loss / len(trainloader)
         train_acc = correct / total
 
+
         print(f"Epoch {epoch+1}: Train Loss = {train_loss:.4f}, Accuracy = {train_acc:.4f}")
 
         val_loss, val_acc = test(net, valloader, device)
+
+        VAL_LOSS.set(val_loss)
+        VAL_ACCURACY.set(val_acc)
 
         print(f"Val Loss = {val_loss:.4f}, Val Acc = {val_acc:.4f}")
 
@@ -129,3 +162,14 @@ def set_weights(net, parameters):
     params_dict = zip(net.state_dict().keys(), parameters)
     state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
     net.load_state_dict(state_dict, strict=True)
+
+def predict_single(model, input_data):
+    model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    x = torch.tensor([input_data], dtype=torch.float32).to(device)
+    with torch.no_grad():
+        output = model(x)
+        pred = torch.argmax(output, dim=1).item()
+    return pred
