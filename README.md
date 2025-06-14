@@ -4,6 +4,46 @@ A complete Federated Learning system using [Flower](https://flower.ai/) and PyTo
 
 ---
 
+## 🔒 Mengapa (Why) Federated Learning Diimplementasikan?
+
+Data medis seperti **informasi pasien diabetes** sangat sensitif dan dilindungi oleh regulasi privasi seperti **GDPR**, sehingga **pendekatan tradisional** yang mengharuskan **pengiriman data mentah ke server pusat** berisiko tinggi terhadap kebocoran dan penyalahgunaan data. **Federated Learning (FL)** menjadi solusi dengan **melatih model langsung di tempat data berada** seperti di perangkat lokal tanpa perlu memindahkan data ke pusat. Dengan demikian, **FL membantu menjaga privasi dan mencegah kebocoran informasi**.
+
+---
+
+## 🖧 Bagaimana (How) Federated Learning Diimplementasikan?
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8553e22e-fd79-4258-b8f1-c02e093f37e3" width="300"/>
+  <img src="https://github.com/user-attachments/assets/a65289dd-1a23-463f-94b8-385e7993db7a" width="470"/>
+</p>
+
+
+Implementasi Federated Learning dalam proyek ini menggunakan framework Flower, yang memfasilitasi skenario federasi antara server dan klien. Arsitektur sistem terdiri dari empat komponen utama:
+
+🖥️ **Komponen Server**
+* **ServerApp**: Bertindak sebagai aggregator dan coordinator yang mengelola siklus pelatihan federatif.
+* **SuperLink**: Menjembatani komunikasi antara server dan klien.
+
+💻 **Komponen Klien**
+* **ClientApp**: Melakukan pelatihan model secara lokal menggunakan data pribadi yang tersimpan di masing-masing klien.
+* **SuperNode**: Mengatur komunikasi antara klien dan server.
+
+🔁 **Proses Federated Learning**
+1. **Server menginisiasi** pelatihan dengan mengirimkan model global awal ke masing-masing klien.
+2. **Klien melatih model secara lokal** menggunakan data mereka sendiri tanpa mengirimkan data mentah.
+3. Setelah pelatihan, klien hanya mengirimkan **parameter model (bobot)** hasil pelatihan ke server.
+4. **Server mengagregasi parameter** dari semua klien untuk memperbarui model global.
+5. Model global yang diperbarui dikirimkan kembali ke klien untuk iterasi berikutnya.
+
+Dengan mekanisme ini, data tidak pernah keluar dari perangkat klien, menjadikan Federated Learning sebagai solusi nyata untuk privacy-preserving machine learning.
+
+🌐 **Infrastruktur**
+* **Server** dijalankan di virtual environment menggunakan **Proxmox**.
+* **Klien** disimulasikan menggunakan layanan **Amazon EC2**.
+* Semua komponen terhubung melalui jaringan privat yang aman menggunakan **VPN Tailscale**.
+
+---
+
 ## 🛠️ Prerequisites
 
 Sebelum menjalankan sistem ini, pastikan:
