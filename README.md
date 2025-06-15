@@ -4,17 +4,16 @@ A complete Federated Learning system using [Flower](https://flower.ai/) and PyTo
 
 ---
 
-## 🔒 Mengapa (Why) Federated Learning Diimplementasikan?
+## 🔒 Mengapa Federated Learning Diimplementasikan?
 
 Data medis seperti **informasi pasien diabetes** sangat sensitif dan dilindungi oleh regulasi privasi seperti **GDPR**, sehingga **pendekatan tradisional** yang mengharuskan **pengiriman data mentah ke server pusat** berisiko tinggi terhadap kebocoran dan penyalahgunaan data. **Federated Learning (FL)** menjadi solusi dengan **melatih model langsung di tempat data berada** seperti di perangkat lokal tanpa perlu memindahkan data ke pusat. Dengan demikian, **FL membantu menjaga privasi dan mencegah kebocoran informasi**.
 
 ---
 
-## 🖧 Bagaimana (How) Federated Learning Diimplementasikan?
+## 🖧 Bagaimana Federated Learning Diimplementasikan?
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/8553e22e-fd79-4258-b8f1-c02e093f37e3" width="300"/>
-  <img src="https://github.com/user-attachments/assets/a65289dd-1a23-463f-94b8-385e7993db7a" width="470"/>
 </p>
 
 
@@ -36,6 +35,10 @@ Implementasi Federated Learning dalam proyek ini menggunakan framework Flower, y
 5. Model global yang diperbarui dikirimkan kembali ke klien untuk iterasi berikutnya.
 
 Dengan mekanisme ini, data tidak pernah keluar dari perangkat klien, menjadikan Federated Learning sebagai solusi nyata untuk privacy-preserving machine learning.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a65289dd-1a23-463f-94b8-385e7993db7a" width="470"/>
+</p>
 
 🌐 **Infrastruktur**
 * **Server** dijalankan di virtual environment menggunakan **Proxmox**.
