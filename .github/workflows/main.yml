@@ -137,9 +137,9 @@ jobs:
           path: |
             fl_client_*
             fl_server*
-
-  build:
-    name: ♻️ Build/Restart containers
+            
+  train:
+    name: 🚀 Build and Train
     runs-on: ubuntu-latest
     needs: deploy
     steps:
@@ -178,19 +178,12 @@ jobs:
           pip install .
           python deploy.py --build
 
-  train:
-    name: 🧠 Run Federated Training
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
       - name: Install Flower
         run: |
           pip install .
           pip install flwr
+
       - name: Start training
-        run: flwr run . local-deployment --stream
+        run: |
+          sleep 30
+          flwr run . local-deployment --stream
