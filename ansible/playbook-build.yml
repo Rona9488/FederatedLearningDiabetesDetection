@@ -5,20 +5,18 @@
       become: true
       shell: |
         docker compose -f ./client/compose.yml down --volumes --remove-orphans
-        # docker system prune -af --volumes
         docker image prune -f
         docker compose -f ./client/compose.yml up -d --build
       args:
-        chdir: /home/{{ ansible_user }}/fl_client
+        chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
       when: "'clients' in group_names"
 
     - name: Restart server container
-      # become: true
+      become: true
       shell: |
         docker compose -f ./server/compose.yml down --volumes --remove-orphans
-        # docker system prune -af --volumes
         docker image prune -f
         docker compose -f ./server/compose.yml up -d --build
       args:
-        chdir: /home/{{ ansible_user }}/fl_server
+        chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
       when: "'server' in group_names"
