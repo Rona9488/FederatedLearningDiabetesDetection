@@ -31,15 +31,6 @@
   args:
     chdir: "{{ server_target_dir }}/server"
 
-- name: Copy ui_server.sh file
-  copy:
-    src: "{{ project_root }}/distributed/server/ui_server.py"
-    dest: "{{ server_target_dir }}/server/ui_server.py"
-    mode: "0644"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-
-
 - name: Copy only necessary certificates to server
   copy:
     src: "{{ item }}"
