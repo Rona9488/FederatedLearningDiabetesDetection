@@ -1,4 +1,5 @@
-- hosts: server, clients
+- hosts: clients
+  serial: 1
   gather_facts: false
   tasks:
     - name: Restart semua container Docker
@@ -9,8 +10,10 @@
         docker compose -f ./client/compose.yml up -d --build
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
-      when: "'clients' in group_names"
 
+- hosts: server
+  gather_facts: false
+  tasks:
     - name: Restart server container
       become: true
       shell: |
@@ -19,4 +22,3 @@
         docker compose -f ./server/compose.yml up -d --build
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
-      when: "'server' in group_names"
