@@ -102,15 +102,24 @@ jobs:
     needs: test-connectivity
     steps:
       - uses: actions/checkout@v3
+  
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
+  
       - name: Download inventory artifacts
         uses: actions/download-artifact@v4
         with:
           name: inventory-artifacts
           path: ansible/
+  
+      - name: Download certificate artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cert-artifacts
+          path: distributed/superlink-certificates/
+  
       - name: Deploy to all hosts
         run: |
           pip install .
