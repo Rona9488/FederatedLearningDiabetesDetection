@@ -34,7 +34,7 @@ services:
     environment:
       - PROM_PORT=9200
     volumes:
-      - "./pyproject.flwr.toml:/app/pyproject.toml"
+      - "../pyproject.flwr.toml:/app/pyproject.toml"
       - ./global_models:/app/global_models
 
 secrets:

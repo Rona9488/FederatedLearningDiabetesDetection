@@ -48,13 +48,6 @@
     mode: "0644"
     owner: "{{ ansible_user }}"
 
-- name: Salin pyproject.base.toml
-  template:
-    src: pyproject.base.toml.j2
-    dest: "{{ client_target_dir }}/pyproject.base.toml"
-    owner: "{{ ansible_user }}"
-    mode: "0644"
-
 - name: Salin pyproject.flwr.toml
   template:
     src: pyproject.flwr.toml.j2
