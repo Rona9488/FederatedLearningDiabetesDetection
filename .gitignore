@@ -21,8 +21,8 @@ distributed/server/state/
 *.srl
 
 # Local data files (opsional tergantung kebutuhan)
-distributed/client/data/*.csv
-!distributed/client/data/data-*.csv  # default dataset
+# distributed/client/data/*.csv
+# !distributed/client/data/data-*.csv  # default dataset
 
 # Python environment (optional)
 .env
