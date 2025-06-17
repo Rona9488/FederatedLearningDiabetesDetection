@@ -180,7 +180,9 @@ jobs:
 
       - name: Install Flower
         run: |
-          python deploy.py --generate-inventory --generate-host-vars --local
+          docker ps -a
+          python deploy.py --generate-inventory --generate-host-vars
+          python deploy.py --local
           pip install .
           pip install flwr
 
