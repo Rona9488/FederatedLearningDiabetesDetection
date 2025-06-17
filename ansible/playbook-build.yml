@@ -8,7 +8,6 @@
         docker compose -f ./client/compose.yml down --volumes --remove-orphans
         docker image prune -f
         docker compose -f ./client/compose.yml up -d --build
-        docker ps -a
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
 
@@ -21,6 +20,5 @@
         docker compose -f ./server/compose.yml down --volumes --remove-orphans
         docker image prune -f
         docker compose -f ./server/compose.yml up -d --build
-        docker ps -a
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
