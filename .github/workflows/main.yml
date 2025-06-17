@@ -124,7 +124,15 @@ jobs:
         run: |
           pip install .
           python deploy.py --deploy
-
+  
+      - name: Upload deploy artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-artifacts
+          path: |
+            fl_client_*
+            fl_server*
+            
   build:
     name: ♻️ Build/Restart containers
     runs-on: ubuntu-latest
@@ -148,6 +156,12 @@ jobs:
         with:
           name: cert-artifacts
           path: distributed/superlink-certificates/
+  
+      - name: Download deploy artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-artifacts
+          path: .
   
       - name: Build and restart containers
         run: |
