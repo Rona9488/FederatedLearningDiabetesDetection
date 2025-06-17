@@ -3,10 +3,10 @@ name: Build & Push Client Images to GHCR
 on:
   push:
     branches: [Aqil]
-    # paths:
-    #   - "distributed/client/**"
-    #   - "distributed/server/**"
-    #   - ".github/workflows/docker-build.yml"
+    paths:
+      - "distributed/client/**"
+      - "distributed/server/**"
+      - ".github/workflows/docker-build.yml"
     
 env:
   REGISTRY: ghcr.io
