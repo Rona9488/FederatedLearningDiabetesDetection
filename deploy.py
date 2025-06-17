@@ -84,7 +84,7 @@ def generate_host_vars(server_ip, server_ip_pub, server_user, clients):
         f.write(f"superlink_ip: {ip_for_vars}\n")
 
     for i, client in enumerate(clients):
-        client_name = f"client{i+1}"
+        client_name = f"client_{i+1}"
         vars_path = os.path.join(vars_dir, f"{client_name}.yml")
 
         ip_client = client["ip"]

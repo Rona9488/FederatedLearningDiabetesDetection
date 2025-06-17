@@ -45,14 +45,6 @@
   args:
     chdir: "{{ client_target_dir }}/client"
 
-# - name: Copy flower_nih folder
-#   copy:
-#     src: "{{ project_root }}/flower_nih/"
-#     dest: "{{ client_target_dir }}/flower_nih/"
-#     mode: "0755"
-#     owner: "{{ ansible_user }}"
-#     group: "{{ ansible_user }}"
-
 - name: Copy superlink certificate (CA only)
   copy:
     src: "{{ project_root }}/distributed/superlink-certificates/ca.crt"
