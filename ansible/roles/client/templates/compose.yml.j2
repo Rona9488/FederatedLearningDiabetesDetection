@@ -41,7 +41,7 @@ services:
       - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.csv
 
   streamlit-ui-{{ partition_id + 1 }}:
-    image: ghcr.io/rona9488/streamlit:latest
+    image: ghcr.io/rona9488/streamlit-ui:latest
 
     command: ["ui_client.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
