@@ -33,15 +33,21 @@ jobs:
 
       - name: Build and Push serverapp image
         run: |
-          docker build -f distributed/server/Dockerfile.serverapp -t $REGISTRY/$IMAGE_NAMESPACE/serverapp:latest server
+          docker build -f distributed/server/Dockerfile.serverapp \
+            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/serverapp:latest \
+            distributed/server
           docker push $REGISTRY/$IMAGE_NAMESPACE/serverapp:latest
 
       - name: Build and Push clientapp image
         run: |
-          docker build -f distributed/client/Dockerfile.clientapp -t $REGISTRY/$IMAGE_NAMESPACE/clientapp:latest client
+          docker build -f distributed/client/Dockerfile.clientapp \
+            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/clientapp:latest \
+            distributed/client
           docker push $REGISTRY/$IMAGE_NAMESPACE/clientapp:latest
 
       - name: Build and Push streamlit image
         run: |
-          docker build -f distributed/client/Dockerfile.streamlit -t $REGISTRY/$IMAGE_NAMESPACE/streamlit:latest client
-          docker push $REGISTRY/$IMAGE_NAMESPACE/streamlit:latest
+          docker build -f distributed/client/Dockerfile.streamlit \
+            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/streamlit-ui:latest \
+            distributed/client
+          docker push $REGISTRY/$IMAGE_NAMESPACE/streamlit-ui:latest
