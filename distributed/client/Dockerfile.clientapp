@@ -2,15 +2,11 @@ FROM flwr/clientapp:1.18.0
 
 WORKDIR /app
 
-# Step 1: install dependencies dulu (jarang berubah)
 COPY --chown=app:app pyproject.base.toml pyproject.toml
 RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
     && python -m pip install -U --no-cache-dir .
 
-# Step 2: overwrite pyproject.toml dengan konfigurasi Flower
-COPY --chown=app:app pyproject.flwr.toml pyproject.toml
-
-COPY --chown=app:app client/start_client.sh /app/start-clientapp.sh
+COPY --chown=app:app start_client.sh /app/start-clientapp.sh
 RUN chmod +x /app/start-clientapp.sh
 
 ENTRYPOINT ["/app/start-clientapp.sh"]

@@ -6,8 +6,8 @@ WORKDIR /app
 RUN pip install -U --no-cache-dir streamlit docker numpy pandas torch 
 
 # Copy file UI Streamlit
-COPY client/ui_client.py .
-COPY client/mini_predict.py .
+COPY ui_client.py .
+COPY mini_predict.py .
 
 # Jalankan Streamlit
 ENTRYPOINT ["streamlit", "run"]
