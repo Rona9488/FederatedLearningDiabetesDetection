@@ -21,7 +21,7 @@ jobs:
           python-version: '3.x'
       - name: Install dependencies
         run: |
-          pip install pytest ansible flwr torch
+          pip install pytest ansible flwr torch scikit-learn pandas
       - name: Run tests
         run: pytest flower_nih/tests.py
 
