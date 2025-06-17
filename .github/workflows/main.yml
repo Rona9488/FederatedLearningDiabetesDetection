@@ -102,67 +102,77 @@ jobs:
     needs: test-connectivity
     steps:
       - uses: actions/checkout@v3
-  
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-  
+
       - name: Download inventory artifacts
         uses: actions/download-artifact@v4
         with:
           name: inventory-artifacts
           path: ansible/
-  
+
       - name: Download certificate artifacts
         uses: actions/download-artifact@v4
         with:
           name: cert-artifacts
           path: distributed/superlink-certificates/
-  
-      - name: Deploy to all hosts
+
+      - name: Deploy to all hosts (creates /home/runner/fl_*)
         run: |
           pip install .
           python deploy.py --deploy
-  
-      - name: Upload deploy artifacts
+
+      - name: Copy fl_* folders from home to workspace
+        run: |
+          cp -r /home/runner/fl_client_* $GITHUB_WORKSPACE/ || true
+          cp -r /home/runner/fl_server* $GITHUB_WORKSPACE/ || true
+
+      - name: Upload deployment-generated folders
         uses: actions/upload-artifact@v4
         with:
-          name: deploy-artifacts
+          name: deployment-folders
           path: |
             fl_client_*
             fl_server*
-            
+
   build:
     name: ♻️ Build/Restart containers
     runs-on: ubuntu-latest
     needs: deploy
     steps:
       - uses: actions/checkout@v3
-  
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-  
+
       - name: Download inventory artifacts
         uses: actions/download-artifact@v4
         with:
           name: inventory-artifacts
           path: ansible/
-  
+
       - name: Download certificate artifacts
         uses: actions/download-artifact@v4
         with:
           name: cert-artifacts
           path: distributed/superlink-certificates/
-  
-      - name: Download deploy artifacts
+
+      - name: Download deployment folders
         uses: actions/download-artifact@v4
         with:
-          name: deploy-artifacts
-          path: .
-  
+          name: deployment-folders
+          path: ./restored/
+
+      - name: Restore fl_* folders to /home/runner/
+        run: |
+          cp -r ./restored/fl_client_* /home/runner/ || true
+          cp -r ./restored/fl_server* /home/runner/ || true
+
       - name: Build and restart containers
         run: |
           pip install .
