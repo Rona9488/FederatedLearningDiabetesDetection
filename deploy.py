@@ -161,6 +161,7 @@ def main():
         
     if args.local:
         run_playbook("playbook-local.yml")
+        return
 
     if args.generate_inventory:
         generate_inventory(server_ip, server_user, clients, local_ip, local_user)

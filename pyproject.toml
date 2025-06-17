@@ -33,5 +33,5 @@ batch-size = 16
 default = "local-deployment"
 
 [tool.flwr.federations.local-deployment]
-address = "100.78.235.15:9093"
+address = "127.0.0.1:9093"
 root-certificates = "./distributed/superlink-certificates/ca.crt"
