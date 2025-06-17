@@ -7,7 +7,7 @@ on:
     #   - "distributed/client/**"
     #   - "distributed/server/**"
     #   - ".github/workflows/docker-build.yml"
-
+    
 env:
   REGISTRY: ghcr.io
   IMAGE_NAMESPACE: ${{ github.repository_owner }}
@@ -31,23 +31,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase image namespace
+        run: echo "LOWER_IMAGE_NAMESPACE=$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build and Push serverapp image
         run: |
           docker build -f distributed/server/Dockerfile.serverapp \
-            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/serverapp:latest \
+            -t $REGISTRY/$LOWER_IMAGE_NAMESPACE/serverapp:latest \
             distributed/server
-          docker push $REGISTRY/$IMAGE_NAMESPACE/serverapp:latest
+          docker push $REGISTRY/$LOWER_IMAGE_NAMESPACE/serverapp:latest
 
       - name: Build and Push clientapp image
         run: |
           docker build -f distributed/client/Dockerfile.clientapp \
-            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/clientapp:latest \
+            -t $REGISTRY/$LOWER_IMAGE_NAMESPACE/clientapp:latest \
             distributed/client
-          docker push $REGISTRY/$IMAGE_NAMESPACE/clientapp:latest
+          docker push $REGISTRY/$LOWER_IMAGE_NAMESPACE/clientapp:latest
 
       - name: Build and Push streamlit image
         run: |
           docker build -f distributed/client/Dockerfile.streamlit \
-            -t $REGISTRY/$(echo $IMAGE_NAMESPACE | tr '[:upper:]' '[:lower:]')/streamlit-ui:latest \
+            -t $REGISTRY/$LOWER_IMAGE_NAMESPACE/streamlit-ui:latest \
             distributed/client
-          docker push $REGISTRY/$IMAGE_NAMESPACE/streamlit-ui:latest
+          docker push $REGISTRY/$LOWER_IMAGE_NAMESPACE/streamlit-ui:latest
