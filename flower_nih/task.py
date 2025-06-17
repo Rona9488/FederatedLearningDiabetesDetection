@@ -118,7 +118,7 @@ def train(net, trainloader, valloader, epochs, learning_rate, device):
 
         print(f"Epoch {epoch+1}: Train Loss = {train_loss:.4f}, Accuracy = {train_acc:.4f}")
 
-        val_loss, val_acc = test(net, valloader, device)
+        val_loss, val_acc = validate(net, valloader, device)
 
         VAL_LOSS.set(val_loss)
         VAL_ACCURACY.set(val_acc)
