@@ -1,2 +1,1 @@
-client_target_dir: /home/{{ ansible_user }}/fl_client
 client_target_dir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"

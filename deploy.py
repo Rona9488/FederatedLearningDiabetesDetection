@@ -58,7 +58,7 @@ def generate_inventory(server_ip, server_user, clients, local_ip=None, local_use
 
     inventory += "\n[clients]\n"
     for i, client in enumerate(clients):
-        hostname = f"client{i+1}"
+        hostname = f"client_{i+1}"
         ip = client["ip"]
         user = client["username"]
         if ip in ["localhost", "127.0.0.1"]:
