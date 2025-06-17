@@ -180,12 +180,12 @@ jobs:
 
       - name: Install Flower
         run: |
+          ls -la
+          tree -L 5
           docker ps -a
           python deploy.py --local
           pip install .
           pip install flwr
-          ls -la
-          tree -L 5
 
       - name: Start training
         run: |
