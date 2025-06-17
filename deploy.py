@@ -151,7 +151,7 @@ def main():
     server_ip, server_ip_pub, server_user, clients, local_ip, local_user = read_input_from_file(args.file)
 
     # Jika gak ada argumen, jalankan semua
-    if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup]):
+    if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup, args.local]):
         args.generate_inventory = True
         args.generate_host_vars = True
         args.generate_certs = True
@@ -161,7 +161,6 @@ def main():
         
     if args.local:
         run_playbook("playbook-local.yml")
-        return
 
     if args.generate_inventory:
         generate_inventory(server_ip, server_user, clients, local_ip, local_user)
