@@ -79,7 +79,7 @@ services:
     command: ["ui_client.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
     ports:
-      - "850{{ partition_id + 1 }}:8501"
+      - "850{{ partition_id + 1 }}:850{{ partition_id + 1 }}"
 
     volumes:
       - "./data:/app/data"
