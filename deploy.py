@@ -145,6 +145,7 @@ def main():
     parser.add_argument("--test", action="store_true", help="Test SSH/Ansible connectivity to all targets")
     parser.add_argument("--build", action="store_true", help="Check target's container and build it") 
     parser.add_argument("--cleanup", action="store_true", help="Down containers and remove it") 
+    parser.add_argument("--local", action="store_true", help="Run only playbook-local.yml")  # <-- Tambahkan ini
     args = parser.parse_args()
 
     server_ip, server_ip_pub, server_user, clients, local_ip, local_user = read_input_from_file(args.file)
@@ -182,5 +183,9 @@ def main():
     if args.cleanup:
         run_playbook("playbook-cleanup.yml")
 
+    if args.local:
+        run_playbook("playbook-local.yml")
+        return
+    
 if __name__ == "__main__":
     main()
