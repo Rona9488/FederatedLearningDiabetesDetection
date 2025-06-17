@@ -16,7 +16,7 @@ services:
       - source: superlink-ca-certfile
         target: /app/certificates/superlink-ca.crt
 
-  clientapp:
+  clientapp-{{ partition_id + 1 }}:
     build:
       context: {{ project_dir | default("..") }}
       dockerfile_inline: |
