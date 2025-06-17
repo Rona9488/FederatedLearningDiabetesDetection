@@ -4,7 +4,6 @@
     state: directory
     mode: "0755"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
   loop:
     - ""
     - client
@@ -17,7 +16,6 @@
     dest: /home/{{ ansible_user }}/fl_client/client/compose.yml
     mode: "0644"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
 
 - name: Copy client files
   copy:
@@ -25,7 +23,6 @@
     dest: "{{ client_target_dir }}/client/{{ item.dest }}"
     mode: "{{ item.mode | default('0644') }}"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
   with_items:
     - { src: "start_client.sh", dest: "start_client.sh", mode: "0755" }
     - { src: "ui_client.py", dest: "ui_client.py" }
@@ -38,7 +35,6 @@
     dest: "{{ client_target_dir }}/client"
     mode: "0755"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
 
 - name: Jalankan container sementara untuk membuat direktori dengan UID 4999
   command: sudo docker compose -f gen-dirs.yml run --rm makedire
@@ -51,14 +47,12 @@
     dest: "{{ client_target_dir }}/superlink-certificates/ca.crt"
     mode: "0644"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
 
 - name: Salin pyproject.base.toml
   template:
     src: pyproject.base.toml.j2
     dest: "{{ client_target_dir }}/pyproject.base.toml"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: "0644"
 
 - name: Salin pyproject.flwr.toml
@@ -66,5 +60,4 @@
     src: pyproject.flwr.toml.j2
     dest: "{{ client_target_dir }}/pyproject.flwr.toml"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: "0644"

@@ -4,7 +4,6 @@
     state: directory
     mode: "0755"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
   loop:
     - ""
     - server
@@ -16,14 +15,12 @@
     dest: "{{ server_target_dir }}/server/compose.yml"
     mode: "0644"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
 
 - name: Salin file gen-state.yml ke direktori server
   copy:
     src: "{{ project_root }}/distributed/server/gen-state.yml"
     dest: "{{ server_target_dir }}/server/gen-state.yml"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: "0644"
 
 - name: Jalankan container sementara untuk membuat direktori state dengan UID 4999
@@ -37,7 +34,6 @@
     dest: "{{ server_target_dir }}/superlink-certificates/{{ item | basename }}"
     mode: "0644"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
   with_items:
     - "{{ project_root }}/distributed/superlink-certificates/ca.crt"
     - "{{ project_root }}/distributed/superlink-certificates/server.key"
@@ -48,7 +44,6 @@
     src: pyproject.base.toml.j2
     dest: "{{ server_target_dir }}/pyproject.base.toml"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: "0644"
 
 - name: Salin pyproject.flwr.toml
@@ -56,5 +51,4 @@
     src: pyproject.flwr.toml.j2
     dest: "{{ server_target_dir }}/pyproject.flwr.toml"
     owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: "0644"
