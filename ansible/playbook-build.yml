@@ -4,7 +4,7 @@
     - name: Restart semua container Docker
       become: true
       shell: |
-        # docker compose -f ./client/compose.yml down --volumes --remove-orphans
+        docker compose -f ./client/compose.yml down --volumes --remove-orphans
         docker image prune -f
         docker compose -f ./client/compose.yml up -d --build
       args:
