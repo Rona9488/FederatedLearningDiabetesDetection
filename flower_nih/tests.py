@@ -1,7 +1,7 @@
 import pytest
 import torch
 import pandas as pd
-from flower_nih.task import Net, load_data, train, test, predict_single
+from flower_nih.task import Net, load_data, train, validate, predict_single
 
 # Dummy dataset untuk test
 @pytest.fixture
