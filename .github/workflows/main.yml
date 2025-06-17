@@ -3,8 +3,7 @@ name: Flower App CI
 on:
   push:
     branches: [Aqil]
-  # pull_request:
-  #   branches: [main]
+  workflow_dispatch:
 
 env:
   PYTHONPATH: ${{ github.workspace }}
@@ -18,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           pip install pytest ansible flwr torch scikit-learn pandas prometheus_client
@@ -34,11 +33,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-      - name: Install PyYAML
-        run: pip install pyyaml
+          python-version: '3.10'
       - name: Validate hosts.yml format
-        run: python -c "import yaml; yaml.safe_load(open('hosts.yml'))"
+        run: |
+          pip install pyyaml
+          python -c "import yaml; yaml.safe_load(open('hosts.yml'))"
 
   generate-inventory:
     name: ⚙️ Generate inventory and host_vars
@@ -49,7 +48,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Generate inventory and host_vars
         run: |
           pip install .
@@ -71,7 +70,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Generate TLS certificates
         run: |
           pip install .
@@ -91,7 +90,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Test Ansible SSH connectivity
         run: |
           pip install .
@@ -106,7 +105,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Deploy to all hosts
         run: |
           pip install .
@@ -121,7 +120,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Build and restart containers
         run: |
           pip install .
@@ -136,8 +135,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.10'
       - name: Install Flower
-        run: pip install flwr
+        run: |
+          pip install .
+          pip install flwr
       - name: Start training
         run: flwr run . local-deployment --stream
