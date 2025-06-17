@@ -1,5 +1,5 @@
 services:
-  supernode:
+  supernode-{{ partition_id + 1 }}:
     image: flwr/supernode:{{ flwr_version | default("1.18.0") }}
     command:
       - --superlink
@@ -58,7 +58,7 @@ services:
       - PROM_PORT=9200
       - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.csv
 
-  streamlit:
+  streamlit-ui-{{ partition_id + 1 }}:
     build:
       context: ..
       dockerfile_inline: |
