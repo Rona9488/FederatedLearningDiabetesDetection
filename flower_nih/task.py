@@ -133,7 +133,7 @@ def train(net, trainloader, valloader, epochs, learning_rate, device):
     return results
 
 
-def test(net, testloader, device):
+def validate(net, testloader, device):
     """Validasi model di test set"""
     net.to(device)
     criterion = torch.nn.CrossEntropyLoss()

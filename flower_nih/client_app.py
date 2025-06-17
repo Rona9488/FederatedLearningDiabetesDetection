@@ -8,7 +8,7 @@ from datetime import datetime
 from flwr.common import Context
 from flwr.client import ClientApp, NumPyClient
 
-from flower_nih.task import Net, get_weights, load_data, set_weights, test, train
+from flower_nih.task import Net, get_weights, load_data, set_weights, validate, train
 
 
 def save_model(weights, round_number, training_dir):
@@ -51,7 +51,7 @@ class FlowerClient(NumPyClient):
 
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
-        loss, accuracy = test(self.net, self.valloader, self.device)
+        loss, accuracy = validate(self.net, self.valloader, self.device)
 
         round_number = config.get("server_round", 0)
         training_id = config.get("training_id", "default_training")
