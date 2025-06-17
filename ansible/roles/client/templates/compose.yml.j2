@@ -17,26 +17,7 @@ services:
         target: /app/certificates/superlink-ca.crt
 
   clientapp-{{ partition_id + 1 }}:
-    build:
-      context: {{ project_dir | default("..") }}
-      dockerfile_inline: |
-        FROM flwr/clientapp:{{ flwr_version | default("1.18.0") }}
-
-        WORKDIR /app
-
-        # Step 1: install dependencies dulu (jarang berubah)
-        COPY --chown=app:app pyproject.base.toml pyproject.toml
-        RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
-          && python -m pip install -U --no-cache-dir .
-
-        # Step 2: overwrite pyproject.toml dengan konfigurasi Flower
-        COPY --chown=app:app pyproject.flwr.toml pyproject.toml
- 
-        COPY --chown=app:app client/start_client.sh /app/start-clientapp.sh
-        RUN chmod +x /app/start-clientapp.sh
-
-        ENTRYPOINT ["/app/start-clientapp.sh"]
-
+    image: ghcr.io/rona9488/clientapp:latest
     command:
       - --insecure
       - --clientappio-api-address
@@ -59,22 +40,7 @@ services:
       - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.csv
 
   streamlit-ui-{{ partition_id + 1 }}:
-    build:
-      context: ..
-      dockerfile_inline: |
-        FROM python:3.10-slim
-
-        WORKDIR /app
-
-        # Copy dan gabungkan pyproject
-        RUN pip install -U --no-cache-dir streamlit docker numpy pandas torch 
-
-        # Copy file UI Streamlit
-        COPY client/ui_client.py .
-        COPY client/mini_predict.py .
-
-        # Jalankan Streamlit
-        ENTRYPOINT ["streamlit", "run"]
+    image: ghcr.io/rona9488/streamlit:latest
 
     command: ["ui_client.py", "--server.port=8501", "--server.address=0.0.0.0"]
 

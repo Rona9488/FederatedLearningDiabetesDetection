@@ -1,0 +1,13 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy dan gabungkan pyproject
+RUN pip install -U --no-cache-dir streamlit docker numpy pandas torch 
+
+# Copy file UI Streamlit
+COPY client/ui_client.py .
+COPY client/mini_predict.py .
+
+# Jalankan Streamlit
+ENTRYPOINT ["streamlit", "run"]
