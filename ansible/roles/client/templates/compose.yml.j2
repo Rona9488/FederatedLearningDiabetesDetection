@@ -51,7 +51,7 @@ services:
           cpus: "2"
     stop_signal: SIGINT
     depends_on:
-      - supernode
+      - supernode-{{ partition_id + 1 }}
     ports:
       - 9200:9200
     environment:
@@ -94,7 +94,7 @@ services:
         target: /app/certificates/superlink-ca.crt
 
     depends_on:
-      - clientapp
+      - clientapp-{{ partition_id + 1 }}
 
 secrets:
   superlink-ca-certfile:
