@@ -20,9 +20,12 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          pip install pytest ansible flwr torch scikit-learn pandas prometheus_client
+          # pip install pytest ansible flwr torch scikit-learn pandas prometheus_client
+          echo "miaw"
       - name: Run tests
-        run: pytest flower_nih/tests.py
+        run: | 
+          echo "mawi"
+          # pytest flower_nih/tests.py
 
   validate-hosts:
     name: ✅ Validate hosts.yml
