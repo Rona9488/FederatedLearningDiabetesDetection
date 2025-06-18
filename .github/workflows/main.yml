@@ -198,6 +198,7 @@ jobs:
       - name: Install Flower
         run: |
           cat pyproject.toml
+          tree -L 5
           ls -la ./distributed/superlink-certificates/
           docker ps -a
           python deploy.py --local
