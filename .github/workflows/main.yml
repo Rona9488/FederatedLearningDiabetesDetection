@@ -9,20 +9,20 @@ env:
   PYTHONPATH: ${{ github.workspace }}
 
 jobs:
-#   test:
-#     name: 🧪 Run Unit Tests
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Set up Python
-#         uses: actions/setup-python@v4
-#         with:
-#           python-version: '3.10'
-#       - name: Install dependencies
-#         run: |
-#           pip install pytest ansible flwr torch scikit-learn pandas prometheus_client
-#       - name: Run tests
-#         run: pytest flower_nih/tests.py
+  test:
+    name: 🧪 Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install pytest ansible flwr torch scikit-learn pandas prometheus_client
+      - name: Run tests
+        run: pytest flower_nih/tests.py
 
   validate-hosts:
     name: ✅ Validate hosts.yml
