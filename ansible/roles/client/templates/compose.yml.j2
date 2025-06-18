@@ -5,7 +5,7 @@ services:
       - --superlink
       - {{ superlink_ip | default("127.0.0.1") }}:9092
       - --clientappio-api-address
-      - 0.0.0.0:9{{ partition_id + 1 }}94
+      - 0.0.0.0:9094
       - --isolation
       - process
       - --node-config
@@ -21,7 +21,7 @@ services:
     command:
       - --insecure
       - --clientappio-api-address
-      - supernode-{{ partition_id + 1 }}:9{{ partition_id + 1 }}94
+      - supernode-{{ partition_id }}:9094
     volumes:
       - "../pyproject.flwr.toml:/app/pyproject.toml"
       - "{{ client_data_dir | default('./data') }}:/app/data"
