@@ -62,3 +62,4 @@ services:
 
     volumes:
       - ./superlink-certificates/:/app/superlink-certificates/:rw
+    network_mode: "host"

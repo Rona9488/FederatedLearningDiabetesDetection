@@ -25,6 +25,8 @@ distributed/server/state/
 # !distributed/client/data/data-*.csv  # default dataset
 
 # Python environment (optional)
+env/
+venv/
 .env
 .venv/
 venv/
