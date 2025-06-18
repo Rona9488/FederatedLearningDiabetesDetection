@@ -185,7 +185,7 @@ jobs:
         run: |
           pip install .
           python deploy.py --build
-          sleep 20
+          sleep 60
 
       - name: Install Flower serverapp
         run: |
