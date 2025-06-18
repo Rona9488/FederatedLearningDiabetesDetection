@@ -179,7 +179,8 @@ jobs:
       - name: Create server/state folder manually
         run: |
           mkdir -p /home/runner/fl_server1/server/state
-          sudo chown -R 49999:49999 /home/runner/fl_server1/server/state || true
+          mkdir -p /home/runner/fl_server1/server/global_models
+          sudo chown -R 49999:49999 /home/runner/fl_server1/server/state /home/runner/fl_server1/server/global_models || true
 
       - name: Build and restart containers
         run: |
