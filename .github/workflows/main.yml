@@ -128,6 +128,11 @@ jobs:
           pip install .
           python deploy.py --deploy
 
+      - name: Create server/state folder manually
+        run: |
+          mkdir -p /home/runner/fl_server1/server/state
+          sudo chown -R 49999:49999 /home/runner/fl_server1/server/state || true
+
       - name: Copy fl_* folders from home to workspace
         run: |
           cp -r /home/runner/fl_client_* $GITHUB_WORKSPACE/ || true
