@@ -178,6 +178,22 @@ jobs:
           pip install .
           python deploy.py --build
 
+      - name: Install Flower serverapp
+        run: |
+          docker logs server-serverapp-1 
+      
+      - name: Install Flower superlink
+        run: |
+          docker logs server-superlink-1 
+      
+      - name: Install Flower clientapp
+        run: |
+          docker logs client-supernode-3-1 
+      
+      - name: Install Flower clientapp
+        run: |
+          docker logs client-clientapp-3-1 
+          
       - name: Install Flower
         run: |
           cat pyproject.toml
