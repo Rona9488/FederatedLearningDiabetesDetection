@@ -176,6 +176,7 @@ jobs:
           cp -r ./restored/fl_client_* /home/runner/ || true
           cp -r ./restored/fl_server* /home/runner/ || true
           ##
+          cat /home/runner/fl_server1/client/compose.yml
           cat /home/runner/fl_client_1/client/compose.yml
           cat /home/runner/fl_client_2/client/compose.yml
 
