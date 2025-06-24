@@ -159,6 +159,9 @@ def main():
         args.deploy = True
         args.build = True
         # args.cleanup = True
+        
+    if args.local:
+        run_playbook("playbook-local.yml")
 
     if args.generate_inventory:
         generate_inventory(server_ip, server_user, clients, local_ip, local_user)
