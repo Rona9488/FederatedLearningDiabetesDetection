@@ -22,22 +22,7 @@ services:
       - 9093:9093
 
   serverapp:
-    build:
-      context: {{ project_dir | default("..") }}
-      dockerfile_inline: |
-        FROM flwr/serverapp:{{ flwr_version | default("1.18.0") }}
-
-        WORKDIR /app
-
-        # Step 1: install dependencies dulu (jarang berubah)
-        COPY --chown=app:app pyproject.base.toml pyproject.toml
-        RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
-          && python -m pip install -U --no-cache-dir .
-
-        # Step 2: overwrite pyproject.toml dengan konfigurasi Flower
-        COPY --chown=app:app pyproject.flwr.toml pyproject.toml
-
-        ENTRYPOINT ["flwr-serverapp"]
+    image: ghcr.io/rona9488/serverapp:latest
     command:
       - --insecure
       - --serverappio-api-address
@@ -49,6 +34,7 @@ services:
     environment:
       - PROM_PORT=9200
     volumes:
+      - "../pyproject.flwr.toml:/app/pyproject.toml"
       - ./global_models:/app/global_models
 
 secrets:

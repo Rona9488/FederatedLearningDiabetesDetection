@@ -1,5 +1,5 @@
 services:
-  supernode:
+  supernode-{{ partition_id + 1 }}:
     image: flwr/supernode:{{ flwr_version | default("1.18.0") }}
     command:
       - --superlink
@@ -16,32 +16,14 @@ services:
       - source: superlink-ca-certfile
         target: /app/certificates/superlink-ca.crt
 
-  clientapp:
-    build:
-      context: {{ project_dir | default("..") }}
-      dockerfile_inline: |
-        FROM flwr/clientapp:{{ flwr_version | default("1.18.0") }}
-
-        WORKDIR /app
-
-        # Step 1: install dependencies dulu (jarang berubah)
-        COPY --chown=app:app pyproject.base.toml pyproject.toml
-        RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
-          && python -m pip install -U --no-cache-dir .
-
-        # Step 2: overwrite pyproject.toml dengan konfigurasi Flower
-        COPY --chown=app:app pyproject.flwr.toml pyproject.toml
- 
-        COPY --chown=app:app client/start_client.sh /app/start-clientapp.sh
-        RUN chmod +x /app/start-clientapp.sh
-
-        ENTRYPOINT ["/app/start-clientapp.sh"]
-
+  clientapp-{{ partition_id + 1 }}:
+    image: ghcr.io/rona9488/clientapp:latest
     command:
       - --insecure
       - --clientappio-api-address
-      - supernode:9094
+      - supernode-{{ partition_id }}:9094
     volumes:
+      - "../pyproject.flwr.toml:/app/pyproject.toml"
       - "{{ client_data_dir | default('./data') }}:/app/data"
       - "./global_models:/app/received_global_models"
       - "./client_checkpoints:/app/client_checkpoints"
@@ -51,35 +33,20 @@ services:
           cpus: "2"
     stop_signal: SIGINT
     depends_on:
-      - supernode
+      - supernode-{{ partition_id + 1 }}
     ports:
-      - 9200:9200
+      - 920{{ partition_id + 1 }}:920{{ partition_id + 1 }}
     environment:
-      - PROM_PORT=9200
+      - PROM_PORT=920{{ partition_id + 1 }}
       - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.csv
 
-  streamlit:
-    build:
-      context: ..
-      dockerfile_inline: |
-        FROM python:3.10-slim
-
-        WORKDIR /app
-
-        # Copy dan gabungkan pyproject
-        RUN pip install -U --no-cache-dir streamlit docker numpy pandas torch 
-
-        # Copy file UI Streamlit
-        COPY client/ui_client.py .
-        COPY client/mini_predict.py .
-
-        # Jalankan Streamlit
-        ENTRYPOINT ["streamlit", "run"]
+  streamlit-ui-{{ partition_id + 1 }}:
+    image: ghcr.io/rona9488/streamlit-ui:latest
 
     command: ["ui_client.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
     ports:
-      - "8501:8501"
+      - "850{{ partition_id + 1 }}:850{{ partition_id + 1 }}"
 
     volumes:
       - "./data:/app/data"
@@ -94,7 +61,7 @@ services:
         target: /app/certificates/superlink-ca.crt
 
     depends_on:
-      - clientapp
+      - clientapp-{{ partition_id + 1 }}
 
 secrets:
   superlink-ca-certfile:

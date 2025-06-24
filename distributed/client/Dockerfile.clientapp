@@ -1,0 +1,12 @@
+FROM flwr/clientapp:1.18.0
+
+WORKDIR /app
+
+COPY --chown=app:app pyproject.base.toml pyproject.toml
+RUN sed -i 's/.*flwr\[simulation\].*//' pyproject.toml \
+    && python -m pip install -U --no-cache-dir .
+
+COPY --chown=app:app start_client.sh /app/start-clientapp.sh
+RUN chmod +x /app/start-clientapp.sh
+
+ENTRYPOINT ["/app/start-clientapp.sh"]

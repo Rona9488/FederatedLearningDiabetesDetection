@@ -58,7 +58,7 @@ def generate_inventory(server_ip, server_user, clients, local_ip=None, local_use
 
     inventory += "\n[clients]\n"
     for i, client in enumerate(clients):
-        hostname = f"client{i+1}"
+        hostname = f"client_{i+1}"
         ip = client["ip"]
         user = client["username"]
         if ip in ["localhost", "127.0.0.1"]:
@@ -84,7 +84,7 @@ def generate_host_vars(server_ip, server_ip_pub, server_user, clients):
         f.write(f"superlink_ip: {ip_for_vars}\n")
 
     for i, client in enumerate(clients):
-        client_name = f"client{i+1}"
+        client_name = f"client_{i+1}"
         vars_path = os.path.join(vars_dir, f"{client_name}.yml")
 
         ip_client = client["ip"]
@@ -145,18 +145,23 @@ def main():
     parser.add_argument("--test", action="store_true", help="Test SSH/Ansible connectivity to all targets")
     parser.add_argument("--build", action="store_true", help="Check target's container and build it") 
     parser.add_argument("--cleanup", action="store_true", help="Down containers and remove it") 
+    parser.add_argument("--local", action="store_true", help="Run only playbook-local.yml")  # <-- Tambahkan ini
     args = parser.parse_args()
 
     server_ip, server_ip_pub, server_user, clients, local_ip, local_user = read_input_from_file(args.file)
 
     # Jika gak ada argumen, jalankan semua
-    if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup]):
+    if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup, args.local]):
+        args.local = True
         args.generate_inventory = True
         args.generate_host_vars = True
         args.generate_certs = True
         args.deploy = True
         args.build = True
         # args.cleanup = True
+        
+    if args.local:
+        run_playbook("playbook-local.yml")
 
     if args.generate_inventory:
         generate_inventory(server_ip, server_user, clients, local_ip, local_user)
@@ -181,6 +186,6 @@ def main():
     
     if args.cleanup:
         run_playbook("playbook-cleanup.yml")
-
+    
 if __name__ == "__main__":
     main()
