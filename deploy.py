@@ -152,6 +152,7 @@ def main():
 
     # Jika gak ada argumen, jalankan semua
     if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup, args.local]):
+        args.local = True
         args.generate_inventory = True
         args.generate_host_vars = True
         args.generate_certs = True
