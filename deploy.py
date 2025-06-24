@@ -152,23 +152,23 @@ def main():
 
     # Jika gak ada argumen, jalankan semua
     if not any([args.generate_inventory, args.generate_host_vars, args.generate_certs, args.deploy, args.test, args.build, args.cleanup, args.local]):
-        args.local = True
         args.generate_inventory = True
         args.generate_host_vars = True
+        args.local = True
         args.generate_certs = True
         args.deploy = True
         args.build = True
         # args.cleanup = True
-        
-    if args.local:
-        run_playbook("playbook-local.yml")
 
     if args.generate_inventory:
         generate_inventory(server_ip, server_user, clients, local_ip, local_user)
 
     if args.generate_host_vars:
         generate_host_vars(server_ip, server_ip_pub, server_user, clients)
-
+        
+    if args.local:
+        run_playbook("playbook-local.yml")
+        
     if args.generate_certs:
         ip_for_cert = server_ip_pub if (server_ip in ["localhost", "127.0.0.1"] and server_ip_pub) else server_ip
         generate_certificates(ip_for_cert)
