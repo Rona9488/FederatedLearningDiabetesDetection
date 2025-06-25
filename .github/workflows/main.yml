@@ -207,7 +207,7 @@ jobs:
       
       - name: Install Flower clientapp
         run: |
-          docker logs client-clientapp-2-1 
+          docker logs client_2-clientapp-2-1 
           
       - name: Install Flower
         run: |
