@@ -56,13 +56,6 @@ def load_data(batch_size: int, df: pd.DataFrame = None, train_split: float = 0.8
         data_path = os.getenv("DATA_PATH", "/app/data/data-1.csv") 
         df = pd.read_csv(data_path)
 
-    # # Pilih hanya kolom yang diperlukan
-    # selected_features = [
-    #     "HighBP", "HighChol", "BMI", "Smoker", "PhysActivity",
-    #     "Fruits", "Veggies", "DiffWalk", "Sex", "Age", "Diabetes_01"
-    # ]
-    # df = df[selected_features]
-
     # Pisahkan fitur dan label
     X = df.iloc[:, :-1].values  # Semua kolom kecuali yang terakhir
     y = df.iloc[:, -1].values   # Hanya kolom terakhir
@@ -138,7 +131,7 @@ def validate(net, testloader, device):
     net.to(device)
     criterion = torch.nn.CrossEntropyLoss()
     correct, loss = 0, 0.0
-    net.eval()  # Mode evaluasi
+    net.eval()
 
     with torch.no_grad():
         for batch in testloader:
