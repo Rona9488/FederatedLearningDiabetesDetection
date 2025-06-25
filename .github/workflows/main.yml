@@ -221,4 +221,5 @@ jobs:
       - name: Start training
         run: |
           sleep 30
+          docker logs server-superlink-1
           flwr run . local-deployment --stream
