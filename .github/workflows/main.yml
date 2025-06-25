@@ -191,6 +191,7 @@ jobs:
           pip install .
           python deploy.py --build
           sleep 50
+          docker ps -a
 
       - name: Install Flower serverapp
         run: |
@@ -213,7 +214,6 @@ jobs:
           cat pyproject.toml
           tree -L 5
           ls -la ./distributed/superlink-certificates/
-          docker ps -a
           python deploy.py --local
           pip install .
           pip install flwr
