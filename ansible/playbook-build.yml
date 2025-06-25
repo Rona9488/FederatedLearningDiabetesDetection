@@ -5,11 +5,12 @@
     - name: Restart semua container Docker
       become: true
       shell: |
-        docker compose -f ./client/compose.yml down --volumes --remove-orphans
+        docker compose -p {{ inventory_hostname }} -f ./client/compose.yml down --volumes --remove-orphans
         docker image prune -f
-        docker compose -f ./client/compose.yml up -d --build
+        docker compose -p {{ inventory_hostname }} -f ./client/compose.yml up -d --build
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
+
 
 - hosts: server
   gather_facts: false
