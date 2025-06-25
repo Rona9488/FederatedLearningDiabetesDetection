@@ -202,11 +202,11 @@ jobs:
       
       - name: Install Flower clientapp
         run: |
-          docker logs client-supernode-3-1 
+          docker logs client-supernode-2-1 
       
       - name: Install Flower clientapp
         run: |
-          docker logs client-clientapp-3-1 
+          docker logs client-clientapp-2-1 
           
       - name: Install Flower
         run: |
