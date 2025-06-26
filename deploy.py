@@ -75,32 +75,76 @@ def generate_host_vars(server_ip, server_ip_pub, server_user, clients):
     vars_dir = os.path.join("ansible", "host_vars")
     os.makedirs(vars_dir, exist_ok=True)
 
-    ip_for_vars = server_ip_pub if (server_ip in ["localhost", "127.0.0.1"] and server_ip_pub) else server_ip
+    ui_base = 8501
+    prom_base = 9200
 
-    with open(f"ansible/host_vars/local1.yml", "w") as f:
-        f.write(f"superlink_ip: {ip_for_vars}\n")
+    is_server_local = server_ip in ("localhost", "127.0.0.1")
+    ip_for_vars = server_ip_pub if is_server_local and server_ip_pub else server_ip
 
-    with open(f"ansible/host_vars/server1.yml", "w") as f:
-        f.write(f"superlink_ip: {ip_for_vars}\n")
+    # Deteksi client lokal
+    local_client_indices = [i for i, c in enumerate(clients) if c["ip"] in ("localhost", "127.0.0.1")]
+    num_local_clients = len(local_client_indices)
 
+    # === Tentukan mode perubahan port ===
+    prom_port_should_change = (
+        (is_server_local and num_local_clients >= 1) or
+        (not is_server_local and num_local_clients >= 2)
+    )
+    ui_port_should_change = (
+        (not is_server_local and num_local_clients >= 2) or
+        (is_server_local and num_local_clients >= 2)
+    )
+
+    # Baca flwr-config.yml dari root (untuk local1)
+    flwr_config_path = "flwr-config.yml"
+    if os.path.exists(flwr_config_path):
+        with open(flwr_config_path, "r") as f:
+            flwr_config = yaml.safe_load(f)
+    else:
+        flwr_config = {}
+
+    # Tulis untuk local1 (superlink_ip + flwr_config)
+    local1_vars = {"superlink_ip": ip_for_vars}
+    local1_vars.update(flwr_config)
+    with open(f"{vars_dir}/local1.yml", "w") as f:
+        yaml.safe_dump(local1_vars, f)
+
+    # Tulis untuk server1 (hanya superlink_ip)
+    with open(f"{vars_dir}/server1.yml", "w") as f:
+        yaml.safe_dump({"superlink_ip": ip_for_vars}, f)
+
+    # Tulis untuk setiap client
     for i, client in enumerate(clients):
         client_name = f"client_{i+1}"
         vars_path = os.path.join(vars_dir, f"{client_name}.yml")
 
         ip_client = client["ip"]
         ip_client_pub = client.get("ip_pub")
-        ip_for_client = ip_client_pub if (ip_client in ["localhost", "127.0.0.1"] and ip_client_pub) else ip_client
+        ip_for_client = ip_client_pub if ip_client in ("localhost", "127.0.0.1") and ip_client_pub else ip_client
+        is_client_local = ip_client in ("localhost", "127.0.0.1")
+
+        if is_client_local:
+            local_id = local_client_indices.index(i)
+            prom_port = prom_base + local_id + 1 if prom_port_should_change else prom_base
+            ui_port = ui_base + local_id if ui_port_should_change else ui_base
+        else:
+            prom_port = prom_base
+            ui_port = ui_base
 
         vars_content = {
             "partition_id": i,
             "num_partitions": len(clients),
             "superlink_ip": ip_for_vars,
             "client_ip": ip_for_client,
-            "client_user": client["username"]
+            "client_user": client["username"],
+            "PROM_PORT": prom_port,
+            "UI_PORT": ui_port
         }
+
         with open(vars_path, "w") as f:
-            yaml.dump(vars_content, f)
-    print("✅ Host vars untuk setiap client berhasil dibuat.")
+            yaml.safe_dump(vars_content, f)
+
+    print("✅ Host vars berhasil dibuat (beserta superlink_ip & config FLWR untuk local1).")
 
 def generate_certificates(server_ip):
     try:
