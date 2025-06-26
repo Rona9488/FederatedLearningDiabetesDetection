@@ -146,7 +146,7 @@ def generate_certificates(server_ip):
 
         subprocess.run(
             [
-                "docker", "compose", "-f", "distributed/certs.yml", "run", "--rm",
+                "sudo", "docker", "compose", "-f", "distributed/certs.yml", "run", "--rm",
                 "--user", f"{os.getuid()}:{os.getgid()}",
                 "gen-certs"
             ],
