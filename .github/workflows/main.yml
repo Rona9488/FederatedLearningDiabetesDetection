@@ -39,6 +39,20 @@ jobs:
           python-version: '3.10'
       - name: Validate hosts.yml format
         run: |
+          cat <<EOF > hosts.yml
+          server:
+            ip: localhost
+            ip_pub: 127.0.0.1
+            username: runner
+          
+          clients:
+            - ip: localhost
+              ip_pub: 127.0.0.1
+              username: runner
+            - ip: localhost
+              ip_pub: 127.0.0.1
+              username: runner
+          EOF
           pip install pyyaml
           python -c "import yaml; yaml.safe_load(open('hosts.yml'))"
 
