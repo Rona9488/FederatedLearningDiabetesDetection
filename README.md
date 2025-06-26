@@ -13,26 +13,26 @@ Data medis seperti **informasi pasien diabetes** sangat sensitif dan dilindungi 
 ## 🖧 Bagaimana Federated Learning Diimplementasikan?
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8553e22e-fd79-4258-b8f1-c02e093f37e3" width="300"/>
+  <img src="https://github.com/user-attachments/assets/bf4f8863-f6bf-4bb7-8193-56296a3d78f7" width="600"/>
 </p>
 
 
 Implementasi Federated Learning dalam proyek ini menggunakan framework Flower, yang memfasilitasi skenario federasi antara server dan klien. Arsitektur sistem terdiri dari empat komponen utama:
 
 🖥️ **Komponen Server**
-* **ServerApp**: Bertindak sebagai aggregator dan coordinator yang mengelola siklus pelatihan federatif.
-* **SuperLink**: Menjembatani komunikasi antara server dan klien.
+* **ServerApp**: Bertindak sebagai aggregator dan coordinator yang mengelola siklus pelatihan federatif
+* **SuperLink**: Menjembatani komunikasi antara server dan klien
 
 💻 **Komponen Klien**
-* **ClientApp**: Melakukan pelatihan model secara lokal menggunakan data pribadi yang tersimpan di masing-masing klien.
-* **SuperNode**: Mengatur komunikasi antara klien dan server.
+* **ClientApp**: Melakukan pelatihan model secara lokal menggunakan data pribadi yang tersimpan di masing-masing klien
+* **SuperNode**: Mengatur komunikasi antara klien dan server
 
 🔁 **Proses Federated Learning**
-1. **Server menginisiasi** pelatihan dengan mengirimkan model global awal ke masing-masing klien.
-2. **Klien melatih model secara lokal** menggunakan data mereka sendiri tanpa mengirimkan data mentah.
-3. Setelah pelatihan, klien hanya mengirimkan **parameter model (bobot)** hasil pelatihan ke server.
-4. **Server mengagregasi parameter** dari semua klien untuk memperbarui model global.
-5. Model global yang diperbarui dikirimkan kembali ke klien untuk iterasi berikutnya.
+1. **Server menginisiasi** pelatihan dengan mengirimkan model global awal ke masing-masing klien
+2. **Klien melatih model secara lokal** menggunakan data mereka sendiri tanpa mengirimkan data mentah
+3. Setelah pelatihan, klien hanya mengirimkan **parameter model (bobot)** hasil pelatihan ke server
+4. **Server mengagregasi parameter** dari semua klien untuk memperbarui model global
+5. Model global yang diperbarui dikirimkan kembali ke klien untuk iterasi berikutnya
 
 Dengan mekanisme ini, data tidak pernah keluar dari perangkat klien, menjadikan Federated Learning sebagai solusi nyata untuk privacy-preserving machine learning.
 
@@ -41,22 +41,26 @@ Dengan mekanisme ini, data tidak pernah keluar dari perangkat klien, menjadikan 
 </p>
 
 🌐 **Infrastruktur**
-* **Server** dijalankan di virtual environment menggunakan **Proxmox**.
-* **Klien** disimulasikan menggunakan layanan **Amazon EC2**.
-* Semua komponen terhubung melalui jaringan privat yang aman menggunakan **VPN Tailscale**.
+Proyek ini dijalankan pada infrastruktur yang dirancang untuk mendukung pembelajaran terdistribusi secara aman dan terpantau. Arsitektur sistem terdiri dari beberapa komponen berikut:
+* **Server** berjalan di virtual environment berbasis **Proxmox**, dengan containerisasi menggunakan **Docker**
+* **Klien** disimulasikan menggunakan instans **Amazon EC2**, masing-masing melakukan pelatihan model secara lokal
+* **Prometheus** dan **Grafana** digunakan untuk monitoring performa sistem
+* **Wazuh** digunakan untuk memantau keamanan sistem dan aktivitas jaringan secara real-time
+* Seluruh komponen terhubung melalui jaringan privat yang terenkripsi menggunakan **VPN Tailscale**
 
 ---
 
 ## 🛠️ Prerequisites
 
-Sebelum menjalankan sistem ini, pastikan:
-
-* Semua host (server dan client) dapat diakses via **SSH tanpa password** (menggunakan SSH key).
-* Semua user host target telah:
-
-  * Didaftarkan di `hosts.yml`
-  * Memiliki akses ke `docker` **tanpa `sudo`** (misalnya dengan `sudo usermod -aG docker $USER`).
-* Python 3.8+ telah terinstal.
+Sebelum menjalankan sistem ini, pastikan hal-hal berikut telah dipenuhi di semua host (baik server maupun klien):
+* Semua host menjalankan **Linux** (teruji pada Ubuntu, Fedora, dan Arch Linux).
+* Host dapat diakses melalui **SSH tanpa password** (menggunakan SSH key)
+* User pada tiap host telah terdaftar di file `hosts.yml` dan dapat diakses
+* **Python 3.11 atau lebih baru** telah terinstal
+* **Port berikut harus dalam keadaan terbuka dan tidak diblokir firewall**:
+  * `8501` – untuk **UI/streamlit**
+  * `9200` – untuk **Prometheus exporter** (keperluan monitoring)
+  * `9092` dan `9093` – untuk komunikasi antara **Superlink(server) dan Supernode(client)**
 
 ---
 
@@ -77,14 +81,11 @@ clients:
     username: clientuser2
 ```
 
-Pastikan setiap host:
-
-* Dapat diakses melalui SSH tanpa password.
-* Telah menginstal Docker dan memiliki izin menjalankannya tanpa sudo.
+Pastikan setiap host dapat diakses melalui SSH tanpa password
 
 ---
 
-## 📦 2. Instalasi Dependency
+## 📦 2. Instalasi Dependensi
 
 Install semua dependency lokal di direktori proyek:
 
@@ -103,10 +104,10 @@ python deploy.py
 ```
 
 Ini akan:
-
-* Menghasilkan file inventori dan konfigurasi host Ansible.
-* Menyalin file konfigurasi dan Docker Compose ke masing-masing host.
-* Mempersiapkan dan menjalankan semua container server dan client.
+* Mendeteksi Docker di sistem, dan menginstall nya jika belum ada
+* Menghasilkan file inventori dan konfigurasi host Ansible
+* Menyalin file konfigurasi dan Docker Compose ke masing-masing host
+* Mempersiapkan dan menjalankan semua container server dan client
 
 ---
 
@@ -130,6 +131,12 @@ Training akan dijalankan secara terdistribusi menggunakan klien dan server yang 
   python deploy.py --generate-certs
   ```
 
+* Untuk deploy ulang ke semua host:
+
+  ```bash
+  python deploy.py --deploy
+  ```
+  
 * Untuk restart semua container:
 
   ```bash
@@ -156,7 +163,5 @@ Training akan dijalankan secara terdistribusi menggunakan klien dan server yang 
 
 ---
 
-## ⭐️ Ayo Berkontribusi!
-
-Berikan ⭐ di repo GitHub ini jika proyek ini membantu kamu!
-Pull request dan issue sangat diterima untuk pengembangan lebih lanjut.
+## 📝 License
+[MIT License](LICENSE) – feel free to use, modify, and contribute!
