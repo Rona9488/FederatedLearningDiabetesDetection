@@ -35,18 +35,18 @@ services:
     depends_on:
       - supernode-{{ partition_id + 1 }}
     ports:
-      - 920{{ partition_id + 1 }}:920{{ partition_id + 1 }}
+      - {{ PROM_PORT }}:{{ PROM_PORT }}
     environment:
-      - PROM_PORT=920{{ partition_id + 1 }}
-      - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.parquet
+      - PROM_PORT={{ PROM_PORT }}
+      - DATA_PATH=/app/data/data-{{ partition_id + 1 }}.csv
 
   streamlit-ui-{{ partition_id + 1 }}:
     image: ghcr.io/rona9488/streamlit-ui:latest
 
-    command: ["ui_client.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    command: ["ui_client.py", "--server.port={{ UI_PORT }}", "--server.address=0.0.0.0"]
 
     ports:
-      - "850{{ partition_id + 1 }}:850{{ partition_id + 1 }}"
+      - "{{ UI_PORT }}:{{ UI_PORT }}"
 
     volumes:
       - "./data:/app/data"
