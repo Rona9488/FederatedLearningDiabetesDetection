@@ -1,3 +1,15 @@
+- hosts: server
+  gather_facts: false
+  tasks:
+    - name: Restart server container
+      become: true
+      shell: |
+        docker compose -f ./server/compose.yml down --volumes --remove-orphans
+        docker image prune -f
+        docker compose -f ./server/compose.yml up -d --build
+      args:
+        chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
+
 - hosts: clients
   serial: 1
   gather_facts: false
@@ -8,17 +20,5 @@
         docker compose -f ./client/compose.yml down --volumes --remove-orphans
         docker image prune -f
         docker compose -f ./client/compose.yml up -d --build
-      args:
-        chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"
-
-- hosts: server
-  gather_facts: false
-  tasks:
-    - name: Restart server container
-      become: true
-      shell: |
-        docker compose -f ./server/compose.yml down --volumes --remove-orphans
-        docker image prune -f
-        docker compose -f ./server/compose.yml up -d --build
       args:
         chdir: "/home/{{ ansible_user }}/fl_{{ inventory_hostname }}"

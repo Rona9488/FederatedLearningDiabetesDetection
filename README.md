@@ -50,12 +50,12 @@ Proyek ini dijalankan pada infrastruktur yang dirancang untuk mendukung pembelaj
 
 ---
 
-## 📡 Tabel Endpoint & Port
+## 📡 Tabel Port
 
 | Layanan              | Port           | Digunakan oleh | Deskripsi                                      |
 |----------------------|:--------------:|:--------------:|------------------------------------------------|
 | UI/Streamlit         |  8501          | Client         | Antarmuka pengguna untuk monitoring/training   |
-| Prometheus Exporter  |  9200          | Server & Client| Monitoring performa sistem                     |
+| Prometheus Exporter  |  9200          | Server/Client  | Monitoring performa sistem                     |
 | Superlink            | 9092 & 9093    | Server         | Komunikasi federasi server ↔ klien             |
 | SSH                  |   22           | Server/Client  | Remote akses ke host                           |
 
